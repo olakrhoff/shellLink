@@ -1,0 +1,370 @@
+All of these is based on (or copied from) the RFC4120: https://datatracker.ietf.org/doc/html/rfc4120
+I do not claim to own any of the IP, this is simply a simplified implementation of the protocol described.
+
+------------------------------------------------------------------------------------------------------------------------
+
+KDC_REQ: (AS_REQ/TGS_REQ)
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|     pvno      |    msg_type   |           req_body            |
++---------------------------------------------------------------+
+|                              ...                              |
++---------------------------------------------------------------+
+
+
+pvno: 1 byte, always the value: "5"
+msg_type: 1 byte, 10 = AS, 12 = TGS
+pdata: not implemented
+req_body: See KRB_KDC_REQ_BODY
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+KDC_REQ_BODY:
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                          kdc_options                          |
++---------------------------------------------------------------+
+|                          client_name                          |
++---------------------------------------------------------------+
+|                          server_name                          |
++---------------------------------------------------------------+
+|                              till                             |
++---------------------------------------------------------------+
+|                                                               |
++---------------------------------------------------------------+
+|                                                               |
++---------------------------------------------------------------+
+|                             nonce                             |
++---------------------------------------------------------------+
+|    enc_authoriaztion_data     |       additonal_tickets       |
++---------------------------------------------------------------+
+
+
+kdc_options: See KRB_KDC_OPTIONS (4 byte)
+client_name: See PrincipalName (Variable amount of bytes (6 - 260))
+realm: not implemented
+server_name: See PrincipalName (Variable amount of bytes (6 - 260))
+from: not implemented
+till: See KerberosTime (12 byte)
+rtime: not implemented
+nonce (random number): (4 byte)
+etype: not implemented
+addresses: not implemented
+enc_authoriaztion_data: See EncrpytedData (Variable length)
+additional_tickets: See Tickets (Variable length)
+
+------------------------------------------------------------------------------------------------------------------------
+
+KRB_KDC_OPTIONS: (KerberosFlags)
+
+listing bits:
+
+0: reserved
+1: forwardable
+2: forwarded
+3: proxiable
+4: proxy
+5: allow_postdate
+6: postdated
+7: unused7
+8: renewable
+9: unused9
+10: unused10
+11: opt_hardware_auth
+12: unused12
+13: unused13
+14: 
+15: unused15
+16: 
+17: 
+18: 
+19: 
+20: 
+21: 
+22: 
+23: 
+24: 
+25: 
+26: disable_transited_check
+27: renewable_ok
+28: enc_tkt_in_skey
+29: 
+30: renew
+31: validate
+
+------------------------------------------------------------------------------------------------------------------------
+
+PrincipalName:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                           name_type                           |
++---------------------------------------------------------------+
+|                          name_string                          |
++---------------------------------------------------------------+
+
+name_type: see PrincipalNameTypes (4 byte)
+name_string: See KerberosString
+
+------------------------------------------------------------------------------------------------------------------------
+
+PrincipalNameTypes
+    {
+        NT_UNKNOWN = 0,
+        NT_PRINCIPAL = 1,
+        NT_SRV_INST = 2,
+        NT_SRV_HST = 3,
+        NT_SRV_XHST = 4,
+        NT_UID = 5,
+        NT_X500_PRINCIPAL = 6,
+        NT_SMTP_NAME = 7,
+        NT_ENTERPRISE = 10
+    };
+
+------------------------------------------------------------------------------------------------------------------------
+
+KerberosTime:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|              year             |            month              |
++---------------------------------------------------------------+
+|              day              |             hour              |
++---------------------------------------------------------------+
+|             minute            |            second             |
++-------------------------------+-------------------------------+
+
+year: (2 byte)
+month: (2 byte)
+day: (2 byte)
+hour: (2 byte)
+minute: (2 byte)
+second: (2 byte)
+
+total packet is 12 bytes
+
+------------------------------------------------------------------------------------------------------------------------
+
+EncryptedData:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                             etype                             |
++---------------------------------------------------------------+
+|                             kvno                              |
++---------------------------------------------------------------+
+|                             chiper                            |
++---------------------------------------------------------------+
+
+etype: This field identifies which encryption algorithm was used to encipher the cipher. (4 byte, Int32)
+
+kvno: This field contains the version number of the key under which data
+      is encrypted.  It is only present in messages encrypted under long
+      lasting keys, such as principals' secret keys. (4 byte, UInt32)
+
+chiper: This field contains the enciphered text, encoded as an KerberosString (Variable length)
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+KerberosString:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                            length                             |
++---------------------------------------------------------------+
+|                            string                             |
++---------------------------------------------------------------+
+
+length: Length of the following string (Uint32)
+string: Actual string value. 
+
+------------------------------------------------------------------------------------------------------------------------
+
+Ticket:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                            tkt_vno                            |
++---------------------------------------------------------------+
+|                             sname                             |
++---------------------------------------------------------------+
+|                            enc_part                           |
++---------------------------------------------------------------+
+
+tkt_vno: This field specifies the version number for the ticket format.
+         This document describes version number 5. (4 byte, int)
+
+realm: not implemented
+
+sname: This field specifies all components of the name part of the
+      server's identity, including those parts that identify a specific
+      instance of a service. (PrincipalName)
+
+enc_part: This field holds the encrypted encoding of the EncTicketPart (see EncTicketPart)
+      sequence.  It is encrypted in the key shared by Kerberos and the
+      end server (the server's secret key), using a key usage value of
+      2.
+
+------------------------------------------------------------------------------------------------------------------------
+
+EncTicketPart:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                             falgs                             |
++---------------------------------------------------------------+
+|                              key                              |
++---------------------------------------------------------------+
+|                             cname                             |
++---------------------------------------------------------------+
+|                            authtime                           |
++---------------------------------------------------------------+
+|                            endtime                            |
++---------------------------------------------------------------+
+
+flags: (TicketFlags)
+key: (EncryptionKey)
+crealm: not implemented
+cname: (PrincipalName)
+transited: not implemented
+authtime: (KerberosTime)
+starttime: not implemented
+endtime: (KerberosTime)
+renew_till: not implemented
+caddr: not implemented
+authorization_data: not implemented
+
+------------------------------------------------------------------------------------------------------------------------
+
+TicketFlags: (KerberosFlags)
+
+listing bits:
+
+0: reserved
+1: forwardable
+2: forwarded
+3: proxiable
+4: proxy
+5: may_postdate
+6: postdated
+7: invalid
+8: renewable
+9: initial
+10: pre_authent
+11: hw_authent
+12: tansisted_policy_check
+13: ok_as_delegate
+14: 
+15: 
+16: 
+17: 
+18: 
+19: 
+20: 
+21: 
+22: 
+23: 
+24: 
+25: 
+26: 
+27: 
+28: 
+29: 
+30: 
+31: 
+
+------------------------------------------------------------------------------------------------------------------------
+
+EncryptionKey:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                            keytype                            |
++---------------------------------------------------------------+
+|                              key                              |
++---------------------------------------------------------------+
+
+keytype: This field specifies the encryption type of the encryption key
+      that follows in the keyvalue field.  Although its name is
+      "keytype", it actually specifies an encryption type.  Previously,
+      multiple cryptosystems that performed encryption differently but
+      were capable of using keys with the same characteristics were
+      permitted to share an assigned number to designate the type of
+      key; this usage is now deprecated. (4 byte, Int32)
+
+keyvalue: This field contains the key itself, encoded as an KerberosString.
+
+------------------------------------------------------------------------------------------------------------------------
+
+Tickets:
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                       number_of_tickets                       |
++---------------------------------------------------------------+
+|                            tickets                            |
++---------------------------------------------------------------+
+
+number_of_tickets: (4 byte, UInt32)
+tickets: A list of the tickets, see Ticket (Variable length)
+
+------------------------------------------------------------------------------------------------------------------------
+
+KDC_REP: (AS_REP/TGS_REP)
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|     pvno      |    msg_type   |          client_name          |
++---------------------------------------------------------------+
+|             ticket            |            enc_part           |
++---------------------------------------------------------------+
+
+pvno: Version number, always: "5" (UInt8, 1 byte)
+
+msg_type: 11 = AS, 13 = TGS (UInt8, 1 byte)
+
+pdata: not implemented
+
+client_name: See PrincipalName
+
+ticket: See Ticket
+
+enc_part: See EncryptedData (EncKDCRepPart)
+
+------------------------------------------------------------------------------------------------------------------------
+
+Ticket:
+
+
+ 0                   1                   2                   3  
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|    tkt_vno    |    msg_type   |          server_name          |
++---------------------------------------------------------------+
+|                            enc_part                           |
++---------------------------------------------------------------+
+
+tkt_vno: Version number, always: "5" (UInt8, 1 byte)
+
+realm: not implemented
+
+server_name: See PrincipalName
+
+enc_part: See EncryptedData (EncTicketPart)
+
+------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,4 @@
+Test1
+Test2
+
+This file must have an empty line after the last name, that is how the program sees the "end of file".
