@@ -6,4 +6,4 @@ ShellLink is a program that connects two computers terminals together directly, 
 
 While standing in the src diretory run the command: g++ main.cpp -std=c++17 -o main -ledit -pthreads && g++ LobbyServer/startAS.cpp -std=c++17 -o LobbyServer/startAS && g++ LobbyServer/startTGS.cpp -std=c++17 -o LobbyServer/startTGS to compile the code.
 
-The src/enviorment.h file need to be updated, add the full path to the shellLink folderen the ENV_PATH.
+The src/enviorment.h file need to be updated, add the full path to the shellLink folder to the ENV_PATH.
